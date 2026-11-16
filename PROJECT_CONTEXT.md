@@ -251,12 +251,12 @@ Mapping snake_case DB ↔ camelCase type dilakukan di `src/services/supabase.ts`
 **Target akhir minggu:** app jalan di HP, login belum wajib, peta tampil dengan posisi user + marker dummy + jarak Haversine.
 
 **Orang 1**
-- [ ] Init repo GitHub, Expo + TS strict, ESLint/Prettier, branch `main`/`dev`, `.env.example`, README awal.
-- [ ] Buat struktur folder §3.1.
-- [ ] Tulis `src/types/index.ts` persis §5.1.
-- [ ] Buat semua store §5.2 (immutable, precision selectors), isi data dummy laporan.
-- [ ] Expo Router: root layout (SafeAreaProvider), tab layout 5 tab, screen placeholder.
-- [ ] `src/services/supabase.ts` (client + mapper).
+- [x] Init repo GitHub, Expo + TS strict, ESLint/Prettier, branch `main`/`dev`, `.env.example`, README awal.
+- [x] Buat struktur folder §3.1.
+- [x] Tulis `src/types/index.ts` persis §5.1.
+- [x] Buat semua store §5.2 (immutable, precision selectors), isi data dummy laporan.
+- [x] Expo Router: root layout (SafeAreaProvider), tab layout 5 tab, screen placeholder.
+- [x] `src/services/supabase.ts` (client + mapper).
 
 **Orang 2**
 - [x] Install & konfigurasi `react-native-maps`, `expo-location` di `app.json` (izin + API key).
@@ -275,11 +275,11 @@ Mapping snake_case DB ↔ camelCase type dilakukan di `src/services/supabase.ts`
 **Target:** user bisa login, membuat laporan dengan foto ber-watermark, menyimpan dokumen di vault.
 
 **Orang 1**
-- [ ] `services/secureStorage.ts`: get/set/delete token, NIK, kredensial (`expo-secure-store`).
-- [ ] `services/auth.ts` + `useAuthStore`: login/register Supabase, token di secure-store, `hydrate()` auto-login, auth gate di root layout.
-- [ ] Screen login & register.
-- [ ] `app/(tabs)/create.tsx`: form (kategori, deskripsi, foto, lokasi otomatis), `KeyboardAvoidingView`, upload foto ke bucket, insert ke `reports`.
-- [ ] `app/(tabs)/vault.tsx`: list dokumen, tambah, hapus, preview (memakai `fileVault`).
+- [x] `services/secureStorage.ts`: get/set/delete token, NIK, kredensial (`expo-secure-store`).
+- [x] `services/auth.ts` + `useAuthStore`: login/register Supabase, token di secure-store, `hydrate()` auto-login, auth gate di root layout.
+- [x] Screen login & register.
+- [x] `app/(tabs)/create.tsx`: form (kategori, deskripsi, foto, lokasi otomatis), `KeyboardAvoidingView`, upload foto ke bucket, insert ke `reports`.
+- [x] `app/(tabs)/vault.tsx`: list dokumen, tambah, hapus, preview (memakai `fileVault`).
 
 **Orang 2**
 - [ ] `usePermission`: alur Just-In-Time + layar penjelasan + tombol buka Settings jika ditolak permanen.

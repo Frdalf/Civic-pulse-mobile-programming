@@ -29,8 +29,8 @@ export function getSupabase(): SupabaseClient {
   }
   client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     auth: {
-      // TODO(Orang 1, Minggu 2): pasang storage adapter berbasis secureStorage
-      // lalu aktifkan persistSession.
+      // Sesi TIDAK dipersist oleh supabase-js (default-nya bukan storage terenkripsi).
+      // Token disimpan sendiri di secure-store oleh services/auth.ts.
       persistSession: false,
       autoRefreshToken: true,
       detectSessionInUrl: false,
