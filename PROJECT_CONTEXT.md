@@ -259,11 +259,11 @@ Mapping snake_case DB ↔ camelCase type dilakukan di `src/services/supabase.ts`
 - [ ] `src/services/supabase.ts` (client + mapper).
 
 **Orang 2**
-- [ ] Install & konfigurasi `react-native-maps`, `expo-location` di `app.json` (izin + API key).
-- [ ] `useLocationTracking` dengan `watchPositionAsync`, `distanceInterval` adaptif (mis. diam 5 m, jalan 20 m, kendaraan 50 m berdasar `speed`), cleanup `remove()`.
-- [ ] `src/utils/haversine.ts` (`haversineKm`).
-- [ ] `components/map/ReportMarker.tsx` (ikon/warna per kategori, `React.memo`).
-- [ ] `app/(tabs)/map.tsx`: peta + marker dari `useReportStore` + jarak ke user di callout.
+- [x] Install & konfigurasi `react-native-maps`, `expo-location` di `app.json` (izin + API key).
+- [x] `useLocationTracking` dengan `watchPositionAsync`, `distanceInterval` adaptif (mis. diam 5 m, jalan 20 m, kendaraan 50 m berdasar `speed`), cleanup `remove()`.
+- [x] `src/utils/haversine.ts` (`haversineKm`).
+- [x] `components/map/ReportMarker.tsx` (ikon/warna per kategori, `React.memo`).
+- [x] `app/(tabs)/map.tsx`: peta + marker dari `useReportStore` + jarak ke user di callout.
 
 **Bersama**
 - [ ] Buat proyek Supabase, tabel & bucket §5.4, RLS, aktifkan Realtime.
