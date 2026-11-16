@@ -47,6 +47,13 @@
           "locationAlwaysPermission": "Civic Pulse membutuhkan akses lokasi di latar belakang untuk peringatan bahaya zona bencana.",
           "locationWhenInUsePermission": "Civic Pulse membutuhkan akses lokasi untuk menampilkan peta dan menghitung jarak laporan warga."
         }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "cameraPermission": "Civic Pulse membutuhkan kamera untuk memotret kondisi infrastruktur yang Anda laporkan.",
+          "photosPermission": false
+        }
       ]
     ],
     "scheme": "civicpulse"
