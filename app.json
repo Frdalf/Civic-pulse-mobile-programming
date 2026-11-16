@@ -8,7 +8,12 @@
     "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "id.ac.umm.civicpulse"
+      "bundleIdentifier": "id.ac.umm.civicpulse",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Civic Pulse membutuhkan akses lokasi untuk menampilkan posisi Anda di peta dan menghitung jarak ke laporan warga.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Civic Pulse membutuhkan akses lokasi untuk memantau geofencing area rawan bencana secara real-time.",
+        "NSLocationAlwaysUsageDescription": "Civic Pulse membutuhkan akses lokasi di latar belakang untuk peringatan bahaya zona bencana."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -18,14 +23,31 @@
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "id.ac.umm.civicpulse"
+      "package": "id.ac.umm.civicpulse",
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION"
+      ],
+      "config": {
+        "googleMaps": {
+          "apiKey": ""
+        }
+      }
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
       "expo-router",
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Civic Pulse membutuhkan akses lokasi untuk mendeteksi posisi Anda saat melaporkan insiden dan memantau geofencing area rawan.",
+          "locationAlwaysPermission": "Civic Pulse membutuhkan akses lokasi di latar belakang untuk peringatan bahaya zona bencana.",
+          "locationWhenInUsePermission": "Civic Pulse membutuhkan akses lokasi untuk menampilkan peta dan menghitung jarak laporan warga."
+        }
+      ]
     ],
     "scheme": "civicpulse"
   }
