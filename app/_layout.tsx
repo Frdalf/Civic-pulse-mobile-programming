@@ -7,6 +7,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { colors } from '@/constants/colors';
 import { subscribeTokenRefresh } from '@/services/auth';
 import { isSupabaseConfigured } from '@/services/supabase';
+import { WatermarkBurner } from '@/components/WatermarkBurner';
 import { useAuthStore } from '@/store';
 
 export default function RootLayout() {
@@ -48,6 +49,7 @@ export default function RootLayout() {
           </Stack.Protected>
         </Stack>
       )}
+      <WatermarkBurner />
     </SafeAreaProvider>
   );
 }
