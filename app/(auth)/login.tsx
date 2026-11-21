@@ -36,7 +36,9 @@ export default function LoginScreen() {
 
   return (
     <FormScreen>
-      <Text style={styles.title} accessibilityRole="header">Civic Pulse</Text>
+      <Text style={styles.title} accessibilityRole="header">
+        Civic Pulse
+      </Text>
       <Text style={styles.subtitle}>Masuk untuk melaporkan masalah di kotamu.</Text>
       <TextField
         label="Email"
@@ -66,5 +68,11 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   title: { marginTop: 48, fontSize: 32, fontWeight: '800', color: colors.primary },
   subtitle: { marginTop: 4, marginBottom: 24, color: colors.textMuted },
-  link: { marginTop: 16, padding: 12, textAlign: 'center', color: colors.primary, fontWeight: '600' },
+  link: {
+    marginTop: 16,
+    padding: 12,
+    textAlign: 'center',
+    color: colors.primary,
+    fontWeight: '600',
+  },
 });

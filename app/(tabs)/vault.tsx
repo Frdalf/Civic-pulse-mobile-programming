@@ -1,5 +1,13 @@
 import { useCallback } from 'react';
-import { ActivityIndicator, Alert, FlatList, StyleSheet, Text, View, type ListRenderItem } from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  FlatList,
+  StyleSheet,
+  Text,
+  View,
+  type ListRenderItem,
+} from 'react-native';
 
 import { Button } from '@/components/ui/Button';
 import { ErrorText } from '@/components/ui/ErrorText';

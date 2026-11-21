@@ -294,10 +294,10 @@ Mapping snake_case DB ↔ camelCase type dilakukan di `src/services/supabase.ts`
 **Target:** zona rawan tampil & memberi peringatan, filter reaktif, laporan baru muncul live, app tahan offline.
 
 **Orang 1**
-- [ ] `app/(tabs)/reports.tsx`: `FlatList` laporan + search bar + chip kategori/status, terhubung `useReportFilter`.
-- [ ] `app/report/[id].tsx`: detail laporan (foto, peta mini, status).
-- [ ] Tambah action/field store yang diminta Orang 2 (realtime, offline queue, `pendingSync`).
-- [ ] Banner "Offline" global dari `useNetworkStore`.
+- [x] `app/(tabs)/reports.tsx`: `FlatList` laporan + search bar + chip kategori/status, terhubung `useReportFilter`.
+- [x] `app/report/[id].tsx`: detail laporan (foto, peta mini, status).
+- [x] Tambah action/field store yang diminta Orang 2 (realtime, offline queue, `pendingSync`).
+- [x] Banner "Offline" global dari `useNetworkStore`.
 
 **Orang 2**
 - [ ] Isi `disaster_zones` (min. 5 zona contoh di Malang), load ke `useZoneStore`.

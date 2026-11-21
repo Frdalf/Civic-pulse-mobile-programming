@@ -12,7 +12,14 @@ interface Props {
   accessibilityHint?: string;
 }
 
-function ButtonBase({ label, onPress, variant = 'primary', loading, disabled, accessibilityHint }: Props) {
+function ButtonBase({
+  label,
+  onPress,
+  variant = 'primary',
+  loading,
+  disabled,
+  accessibilityHint,
+}: Props) {
   const isDisabled = disabled || loading;
   return (
     <Pressable
@@ -31,7 +38,9 @@ function ButtonBase({ label, onPress, variant = 'primary', loading, disabled, ac
       {loading ? (
         <ActivityIndicator color={variant === 'secondary' ? colors.primary : colors.primaryText} />
       ) : (
-        <Text style={[styles.label, variant === 'secondary' && styles.labelSecondary]}>{label}</Text>
+        <Text style={[styles.label, variant === 'secondary' && styles.labelSecondary]}>
+          {label}
+        </Text>
       )}
     </Pressable>
   );

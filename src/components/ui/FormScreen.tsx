@@ -1,13 +1,20 @@
 import { memo, type ReactNode } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { colors } from '@/constants/colors';
 
 /** Wrapper form: SafeArea + KeyboardAvoidingView + ScrollView. */
 function FormScreenBase({ children }: { children: ReactNode }) {
+  // Inset via hook (bukan SafeAreaView native) agar bisa di-override OfflineBanner.
+  const insets = useSafeAreaInsets();
   return (
-    <SafeAreaView style={styles.root} edges={['top', 'left', 'right']}>
+    <View
+      style={[
+        styles.root,
+        { paddingTop: insets.top, paddingLeft: insets.left, paddingRight: insets.right },
+      ]}
+    >
       <KeyboardAvoidingView
         style={styles.root}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -16,7 +23,7 @@ function FormScreenBase({ children }: { children: ReactNode }) {
           {children}
         </ScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </View>
   );
 }
 

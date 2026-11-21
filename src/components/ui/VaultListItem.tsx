@@ -25,8 +25,12 @@ function VaultListItemBase({ doc, onPreview, onRemove }: Props) {
         accessibilityRole="button"
         accessibilityLabel={`Pratinjau ${doc.name}`}
       >
-        <Text style={styles.name} numberOfLines={1}>{doc.name}</Text>
-        <Text style={styles.meta}>{doc.mimeType} · {formatSize(doc.sizeBytes)}</Text>
+        <Text style={styles.name} numberOfLines={1}>
+          {doc.name}
+        </Text>
+        <Text style={styles.meta}>
+          {doc.mimeType} · {formatSize(doc.sizeBytes)}
+        </Text>
       </Pressable>
       <Pressable
         style={styles.remove}
