@@ -1,6 +1,6 @@
 import { memo, type ReactNode } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { colors } from '@/constants/colors';
 
@@ -11,8 +11,15 @@ interface Props {
 }
 
 function ScreenPlaceholderBase({ title, description, children }: Props) {
+  // Inset via hook (bukan SafeAreaView native) agar bisa di-override OfflineBanner.
+  const insets = useSafeAreaInsets();
   return (
-    <SafeAreaView style={styles.root} edges={['top', 'left', 'right']}>
+    <View
+      style={[
+        styles.root,
+        { paddingTop: insets.top, paddingLeft: insets.left, paddingRight: insets.right },
+      ]}
+    >
       <View style={styles.header}>
         <Text style={styles.title} accessibilityRole="header">
           {title}
@@ -20,7 +27,7 @@ function ScreenPlaceholderBase({ title, description, children }: Props) {
         {description ? <Text style={styles.description}>{description}</Text> : null}
       </View>
       {children}
-    </SafeAreaView>
+    </View>
   );
 }
 

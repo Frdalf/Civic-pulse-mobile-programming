@@ -17,11 +17,7 @@ function ChipBase({ label, selected, color = colors.primary, onPress }: Props) {
       accessibilityRole="radio"
       accessibilityState={{ selected }}
       accessibilityLabel={label}
-      style={[
-        styles.chip,
-        { borderColor: color },
-        selected && { backgroundColor: color },
-      ]}
+      style={[styles.chip, { borderColor: color }, selected && { backgroundColor: color }]}
     >
       <Text style={[styles.text, selected && styles.textSelected]}>{label}</Text>
     </Pressable>

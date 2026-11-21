@@ -44,7 +44,9 @@ export default function RegisterScreen() {
 
   return (
     <FormScreen>
-      <Text style={styles.title} accessibilityRole="header">Daftar Akun</Text>
+      <Text style={styles.title} accessibilityRole="header">
+        Daftar Akun
+      </Text>
       <TextField
         label="Email"
         value={email}
@@ -77,5 +79,11 @@ const styles = StyleSheet.create({
   title: { marginTop: 32, marginBottom: 24, fontSize: 28, fontWeight: '800', color: colors.text },
   note: { marginTop: -4, marginBottom: 12, fontSize: 12, color: colors.textMuted },
   info: { marginBottom: 12, color: colors.primary },
-  link: { marginTop: 16, padding: 12, textAlign: 'center', color: colors.primary, fontWeight: '600' },
+  link: {
+    marginTop: 16,
+    padding: 12,
+    textAlign: 'center',
+    color: colors.primary,
+    fontWeight: '600',
+  },
 });

@@ -31,3 +31,15 @@ export async function insertReport(r: NewReport, photoUrl: string | null): Promi
   if (error) throw new Error(`Gagal menyimpan laporan: ${error.message}`);
   return toReport(data);
 }
+
+/** Ambil laporan terbaru dari tabel `reports` (urut terbaru dulu). */
+export async function fetchReports(limit = 200): Promise<Report[]> {
+  const { data, error } = await getSupabase()
+    .from('reports')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(limit)
+    .returns<DbReportRow[]>();
+  if (error) throw new Error(`Gagal memuat laporan: ${error.message}`);
+  return data.map(toReport);
+}

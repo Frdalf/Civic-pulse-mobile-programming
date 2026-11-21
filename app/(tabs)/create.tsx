@@ -18,7 +18,9 @@ export default function CreateReportScreen() {
 
   return (
     <FormScreen>
-      <Text style={styles.title} accessibilityRole="header">Buat Laporan</Text>
+      <Text style={styles.title} accessibilityRole="header">
+        Buat Laporan
+      </Text>
 
       <Text style={styles.label}>Kategori</Text>
       <View style={styles.chips} accessibilityRole="radiogroup">

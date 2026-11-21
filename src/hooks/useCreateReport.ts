@@ -94,8 +94,17 @@ export function useCreateReport(): UseCreateReport {
   }, [user, category, description, location, photoUri, upsertReport]);
 
   return {
-    category, description, photoUri, location, locationError,
-    isCapturing, isSubmitting, error,
-    setCategory, setDescription, takePhoto, submit,
+    category,
+    description,
+    photoUri,
+    location,
+    locationError,
+    isCapturing,
+    isSubmitting,
+    error,
+    setCategory,
+    setDescription,
+    takePhoto,
+    submit,
   };
 }

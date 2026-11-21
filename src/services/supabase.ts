@@ -68,7 +68,13 @@ export interface DbDisasterZoneRow {
 }
 
 const CATEGORIES: readonly ReportCategory[] = [
-  'jalan_rusak', 'lampu_mati', 'drainase', 'banjir', 'longsor', 'pohon_tumbang', 'lainnya',
+  'jalan_rusak',
+  'lampu_mati',
+  'drainase',
+  'banjir',
+  'longsor',
+  'pohon_tumbang',
+  'lainnya',
 ];
 const STATUSES: readonly ReportStatus[] = ['baru', 'diverifikasi', 'diproses', 'selesai'];
 const ZONE_TYPES: readonly DisasterZone['type'][] = ['banjir', 'longsor', 'gempa', 'lainnya'];
