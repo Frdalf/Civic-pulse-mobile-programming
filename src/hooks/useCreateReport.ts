@@ -8,12 +8,15 @@ import { insertReport, uploadReportPhoto } from '@/services/reports';
 import { applyWatermark } from '@/services/watermark';
 import { useAuthStore, useNetworkStore, useReportStore } from '@/store';
 import type { Coordinate, ReportCategory } from '@/types';
+import { isNetworkError } from '@/utils/network';
 
 const MIN_DESCRIPTION = 10;
 
 function toMessage(e: unknown, fallback: string): string {
   return e instanceof Error ? e.message : fallback;
 }
+
+export type SubmitResult = 'terkirim' | 'antre' | false;
 
 export interface UseCreateReport {
   category: ReportCategory | null;
@@ -27,8 +30,8 @@ export interface UseCreateReport {
   setCategory(c: ReportCategory): void;
   setDescription(d: string): void;
   takePhoto(): Promise<void>;
-  /** @returns true jika laporan berhasil terkirim. */
-  submit(): Promise<boolean>;
+  /** @returns 'terkirim', 'antre' (disimpan offline), atau false bila gagal. */
+  submit(): Promise<SubmitResult>;
 }
 
 export function useCreateReport(): UseCreateReport {
@@ -68,49 +71,40 @@ export function useCreateReport(): UseCreateReport {
       return fail(`Deskripsi minimal ${MIN_DESCRIPTION} karakter.`);
     if (!location) return fail('Lokasi belum didapat. Pastikan izin lokasi aktif.');
 
-    setError(null);
-    setIsSubmitting(true);
-    try {
-      if (!useNetworkStore.getState().isOnline) {
-        await offlineQueue.enqueue({
-          userId: user.id,
-          category,
-          description: description.trim(),
-          location,
-          photoUrl: photoUri,
-        });
-        setCategory(null);
-        setDescription('');
-        setPhotoUri(null);
-        return true;
-      }
-
-      const photoUrl = photoUri ? await uploadReportPhoto(photoUri, user.id) : null;
-      const report = await insertReport(
-        { userId: user.id, category, description: description.trim(), location },
-        photoUrl,
-      );
-      upsertReport(report);
+    const input = {
+      userId: user.id,
+      category,
+      description: description.trim(),
+      location,
+    };
+    const resetForm = () => {
       setCategory(null);
       setDescription('');
       setPhotoUri(null);
-      return true;
+    };
+    const enqueue = async (): Promise<SubmitResult> => {
+      await offlineQueue.enqueue({ ...input, photoUrl: photoUri });
+      resetForm();
+      return 'antre';
+    };
+
+    setError(null);
+    setIsSubmitting(true);
+    try {
+      if (!useNetworkStore.getState().isOnline) return await enqueue();
+
+      const photoUrl = photoUri ? await uploadReportPhoto(photoUri, user.id) : null;
+      upsertReport(await insertReport(input, photoUrl));
+      resetForm();
+      return 'terkirim';
     } catch (e) {
-      // Saat gagal karena jaringan atau offline, simpan ke offlineQueue
+      // Hanya error jaringan yang diantrekan. Error lain (RLS, validasi server)
+      // ditampilkan ke user karena tidak akan berhasil walau dikirim ulang.
+      if (!isNetworkError(e)) return fail(toMessage(e, 'Gagal mengirim laporan.'));
       try {
-        await offlineQueue.enqueue({
-          userId: user.id,
-          category,
-          description: description.trim(),
-          location,
-          photoUrl: photoUri,
-        });
-        setCategory(null);
-        setDescription('');
-        setPhotoUri(null);
-        return true;
-      } catch {
-        return fail(toMessage(e, 'Gagal mengirim laporan.'));
+        return await enqueue();
+      } catch (queueError) {
+        return fail(toMessage(queueError, 'Gagal menyimpan laporan ke antrean offline.'));
       }
     } finally {
       setIsSubmitting(false);

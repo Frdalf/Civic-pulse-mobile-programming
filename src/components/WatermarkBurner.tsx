@@ -36,8 +36,7 @@ export function WatermarkBurner() {
       job.resolve(snapshotUri);
     } catch (error) {
       console.warn('[WatermarkBurner] Gagal melakukan snapshot foto:', error);
-      // Fallback ke foto asli jika snapshot native gagal
-      job.resolve(job.uri);
+      job.reject(new Error('Gagal mencetak watermark. Silakan ambil ulang foto.'));
     } finally {
       setJob(null);
     }
@@ -70,7 +69,7 @@ export function WatermarkBurner() {
             void handleCapture();
           }}
           onError={() => {
-            job.resolve(job.uri);
+            job.reject(new Error('Foto tidak dapat dibaca untuk diberi watermark.'));
             setJob(null);
           }}
         />
@@ -88,10 +87,11 @@ export function WatermarkBurner() {
 
 const styles = StyleSheet.create({
   offscreenContainer: {
+    // Di luar layar tapi TETAP dirender (tanpa opacity: 0) agar Android tidak
+    // melewatkan proses gambar dan hasil snapshot tidak kosong.
     position: 'absolute',
-    left: -99999,
-    top: -99999,
-    opacity: 0,
+    left: -10000,
+    top: 0,
   },
   captureCanvas: {
     backgroundColor: '#000000',
