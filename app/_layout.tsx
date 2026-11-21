@@ -36,6 +36,8 @@ export default function RootLayout() {
         </View>
       ) : (
         <Stack screenOptions={{ headerShown: false }}>
+          {/* Route awal: dapat diakses siapa pun, lalu redirect sesuai status login. */}
+          <Stack.Screen name="index" />
           {/* Auth gate: route di bawah hanya bisa diakses sesuai status login. */}
           <Stack.Protected guard={isLoggedIn}>
             <Stack.Screen name="(tabs)" />
