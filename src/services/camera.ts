@@ -1,12 +1,39 @@
-// TODO(Orang 2): implementasi asli (Minggu 2) — stub sementara dibuat Orang 1
-// agar form lapor bisa dites. Signature sesuai PROJECT_CONTEXT §5.3, silakan ganti seluruh isi file.
 import * as ImagePicker from 'expo-image-picker';
 
-/** Buka kamera dan kembalikan uri lokal foto, atau null jika batal / izin ditolak. */
+/**
+ * Membuka kamera perangkat dan mengambil foto bukti insiden (Orang 2 — Minggu 2).
+ * Menangani izin kamera secara Just-In-Time (JIT) dan memastikan penolakan izin
+ * atau pembatalan tidak menyebabkan crash.
+ *
+ * @returns URI lokal berkas foto yang berhasil diambil, atau `null` jika batal / izin ditolak.
+ */
 export async function capturePhoto(): Promise<string | null> {
-  const perm = await ImagePicker.requestCameraPermissionsAsync();
-  if (!perm.granted) return null;
-  const result = await ImagePicker.launchCameraAsync({ mediaTypes: ['images'], quality: 0.7 });
-  if (result.canceled) return null;
-  return result.assets[0]?.uri ?? null;
+  try {
+    const { status } = await ImagePicker.getCameraPermissionsAsync();
+    let finalStatus = status;
+
+    if (finalStatus !== ImagePicker.PermissionStatus.GRANTED) {
+      const requested = await ImagePicker.requestCameraPermissionsAsync();
+      finalStatus = requested.status;
+    }
+
+    if (finalStatus !== ImagePicker.PermissionStatus.GRANTED) {
+      return null;
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ['images'],
+      quality: 0.8,
+      allowsEditing: false,
+    });
+
+    if (result.canceled || !result.assets || result.assets.length === 0) {
+      return null;
+    }
+
+    return result.assets[0]?.uri ?? null;
+  } catch (error) {
+    console.warn('[Camera] Gagal mengambil foto:', error);
+    return null;
+  }
 }

@@ -282,11 +282,11 @@ Mapping snake_case DB ↔ camelCase type dilakukan di `src/services/supabase.ts`
 - [x] `app/(tabs)/vault.tsx`: list dokumen, tambah, hapus, preview (memakai `fileVault`).
 
 **Orang 2**
-- [ ] `usePermission`: alur Just-In-Time + layar penjelasan + tombol buka Settings jika ditolak permanen.
-- [ ] `services/camera.ts` (`capturePhoto`).
-- [ ] `services/watermark.ts` (`applyWatermark`): teks `lat, long` + `dd MMM yyyy HH:mm WIB` di pojok foto.
-- [ ] `services/fileVault.ts`: simpan/list/hapus di `documentDirectory + 'vault/'`, metadata ke `useVaultStore`.
-- [ ] Pastikan tolak izin **tidak** membuat app crash.
+- [x] `usePermission`: alur Just-In-Time + layar penjelasan + tombol buka Settings jika ditolak permanen.
+- [x] `services/camera.ts` (`capturePhoto`).
+- [x] `services/watermark.ts` (`applyWatermark`): teks `lat, long` + `dd MMM yyyy HH:mm WIB` di pojok foto.
+- [x] `services/fileVault.ts`: simpan/list/hapus di `documentDirectory + 'vault/'`, metadata ke `useVaultStore`.
+- [x] Pastikan tolak izin **tidak** membuat app crash.
 
 ---
 
