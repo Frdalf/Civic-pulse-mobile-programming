@@ -17,6 +17,9 @@ type WatermarkHandler = (job: WatermarkJob | null) => void;
 let activeHandler: WatermarkHandler | null = null;
 let currentJob: WatermarkJob | null = null;
 
+const MAX_DIMENSION = 1280;
+const WATERMARK_TIMEOUT_MS = 8000;
+
 /**
  * Daftarkan handler UI (WatermarkBurner) untuk merender dan mencetak foto.
  * @returns Fungsi unsubscribe saat komponen unmount.
@@ -44,6 +47,7 @@ export function registerWatermarkHandler(handler: WatermarkHandler): () => void 
  * @param loc Koordinat lokasi perangkat
  * @param date Waktu pengambilan foto
  * @returns URI berkas foto baru yang sudah tercetak watermark di dalamnya
+ * @throws Error bila watermark gagal dicetak (pemanggil menampilkan pesan ke user)
  */
 export async function applyWatermark(
   uri: string,
@@ -56,69 +60,51 @@ export async function applyWatermark(
   }
 
   return new Promise<string>((resolve, reject) => {
+    let settled = false;
+    let timer: ReturnType<typeof setTimeout> | null = null;
+
+    // Pastikan promise hanya diselesaikan sekali dan burner dibersihkan.
+    const finish = (fn: () => void) => {
+      if (settled) return;
+      settled = true;
+      if (timer) clearTimeout(timer);
+      if (currentJob?.uri === uri) {
+        currentJob = null;
+        activeHandler?.(null);
+      }
+      fn();
+    };
+
+    const start = (width: number, height: number) => {
+      const job: WatermarkJob = {
+        uri,
+        loc,
+        date,
+        width,
+        height,
+        resolve: (out) => finish(() => resolve(out)),
+        reject: (err) => finish(() => reject(err)),
+      };
+      currentJob = job;
+      activeHandler?.(job);
+
+      // Batas waktu: foto TANPA watermark tidak boleh lolos diam-diam (fitur wajib #1).
+      timer = setTimeout(() => {
+        job.reject(new Error('Gagal mencetak watermark (waktu habis). Silakan ambil ulang foto.'));
+      }, WATERMARK_TIMEOUT_MS);
+    };
+
     Image.getSize(
       uri,
       (origWidth, origHeight) => {
-        // Batasi resolusi maksimal canvas agar proses snapshot cepat dan hemat RAM
-        const maxDim = 1280;
-        let targetWidth = origWidth;
-        let targetHeight = origHeight;
-
-        if (origWidth > maxDim || origHeight > maxDim) {
-          if (origWidth > origHeight) {
-            targetWidth = maxDim;
-            targetHeight = Math.round((origHeight / origWidth) * maxDim);
-          } else {
-            targetHeight = maxDim;
-            targetWidth = Math.round((origWidth / origHeight) * maxDim);
-          }
-        }
-
-        const job: WatermarkJob = {
-          uri,
-          loc,
-          date,
-          width: targetWidth,
-          height: targetHeight,
-          resolve,
-          reject,
-        };
-
-        currentJob = job;
-        activeHandler?.(job);
-
-        // Timeout pengaman 3.5 detik jika snapshot native terhambat
-        setTimeout(() => {
-          if (currentJob === job) {
-            currentJob = null;
-            activeHandler?.(null);
-            resolve(uri);
-          }
-        }, 3500);
+        // Batasi resolusi kanvas agar snapshot cepat dan hemat RAM.
+        const scale = Math.min(1, MAX_DIMENSION / Math.max(origWidth, origHeight));
+        start(Math.round(origWidth * scale), Math.round(origHeight * scale));
       },
       (sizeError) => {
-        console.warn('[Watermark] Gagal membaca ukuran foto:', sizeError);
-        const job: WatermarkJob = {
-          uri,
-          loc,
-          date,
-          width: 960,
-          height: 1280,
-          resolve,
-          reject,
-        };
-
-        currentJob = job;
-        activeHandler?.(job);
-
-        setTimeout(() => {
-          if (currentJob === job) {
-            currentJob = null;
-            activeHandler?.(null);
-            resolve(uri);
-          }
-        }, 3500);
-      }
+        console.warn('[Watermark] Gagal membaca ukuran foto, pakai 3:4 default:', sizeError);
+        start(960, 1280);
+      },
     );
   });
 }

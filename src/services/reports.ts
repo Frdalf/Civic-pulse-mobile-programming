@@ -43,3 +43,16 @@ export async function fetchReports(limit = 200): Promise<Report[]> {
   if (error) throw new Error(`Gagal memuat laporan: ${error.message}`);
   return data.map(toReport);
 }
+
+/**
+ * Cari id laporan yang deskripsinya cocok dengan `query` (server-side, case-insensitive).
+ * Dipakai useReportFilter di dalam `switchMap` — permintaan lama otomatis diabaikan.
+ */
+export async function searchReportIds(query: string, signal?: AbortSignal): Promise<string[]> {
+  const escaped = query.replace(/[%_\\]/g, (c) => `\\${c}`);
+  let req = getSupabase().from('reports').select('id').ilike('description', `%${escaped}%`).limit(500);
+  if (signal) req = req.abortSignal(signal);
+  const { data, error } = await req.returns<{ id: string }[]>();
+  if (error) throw new Error(`Gagal mencari laporan: ${error.message}`);
+  return data.map((r) => r.id);
+}

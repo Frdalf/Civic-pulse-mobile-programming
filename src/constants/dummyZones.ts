@@ -1,7 +1,8 @@
 import type { DisasterZone } from '@/types';
 
 /**
- * Daftar zona rawan bencana di Kota Malang (Orang 2 — Minggu 3).
+ * Data CADANGAN zona rawan bencana Malang (Orang 2 — Minggu 3). Sumber utama: tabel
+ * `disaster_zones` di Supabase (seed: docs/supabase-seed-zones.sql). Dipakai bila offline / .env kosong.
  * Mencakup area banjir, longsor, dan gempa berdasarkan topografi Malang.
  */
 export const MALANG_DISASTER_ZONES: DisasterZone[] = [

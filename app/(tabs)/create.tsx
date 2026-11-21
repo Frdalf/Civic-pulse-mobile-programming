@@ -13,7 +13,12 @@ export default function CreateReportScreen() {
   const f = useCreateReport();
 
   const onSubmit = async () => {
-    if (await f.submit()) Alert.alert('Terkirim', 'Laporan Anda berhasil dikirim. Terima kasih!');
+    const result = await f.submit();
+    if (result === 'terkirim') {
+      Alert.alert('Terkirim', 'Laporan Anda berhasil dikirim. Terima kasih!');
+    } else if (result === 'antre') {
+      Alert.alert('Disimpan offline', 'Laporan akan dikirim otomatis saat koneksi kembali.');
+    }
   };
 
   return (

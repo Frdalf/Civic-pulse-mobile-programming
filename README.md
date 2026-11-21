@@ -38,7 +38,9 @@ docs            Skema SQL, audit checklist, bukti prompt
 ```
 
 ## Supabase
-Jalankan [docs/supabase-schema.sql](docs/supabase-schema.sql) di SQL Editor proyek Supabase.
+Jalankan di SQL Editor proyek Supabase, berurutan:
+1. [docs/supabase-schema.sql](docs/supabase-schema.sql) — tabel, RLS, realtime, bucket.
+2. [docs/supabase-seed-zones.sql](docs/supabase-seed-zones.sql) — 5 zona rawan bencana Malang.
 
 ## Git
 Branch `main` (stabil), `dev` (integrasi), fitur `feat/o1-*` / `feat/o2-*`.

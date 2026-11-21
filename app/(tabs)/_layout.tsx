@@ -4,7 +4,10 @@ import { Text } from 'react-native';
 
 import { OfflineBanner } from '@/components/ui/OfflineBanner';
 import { colors } from '@/constants/colors';
-import { useReportStore } from '@/store';
+import { useNetworkStatus } from '@/hooks/useNetworkStatus';
+import { useRealtimeReports } from '@/hooks/useRealtimeReports';
+import { offlineQueue } from '@/services/offlineQueue';
+import { useReportStore, useZoneStore } from '@/store';
 
 // Ikon emoji dipakai agar tidak menambah library ikon (lihat §2).
 function icon(glyph: string) {
@@ -16,12 +19,29 @@ function icon(glyph: string) {
 
 export default function TabLayout() {
   const loadReports = useReportStore((s) => s.loadReports);
+  const loadZones = useZoneStore((s) => s.loadZones);
+
+  // Dipasang di sini (bukan di satu layar) agar aktif selama user login.
+  // Cleanup: NetInfo unsubscribe & supabase.removeChannel ada di dalam masing-masing hook.
+  useNetworkStatus();
+  useRealtimeReports();
 
   useEffect(() => {
-    // Muat laporan sekali setelah login. Tidak ada subscription → tanpa cleanup.
-    // loadReports tidak pernah reject; error disimpan di store & ditampilkan di layar Laporan.
-    void loadReports();
-  }, [loadReports]);
+    // Muat data awal sekali setelah login. Tidak ada subscription → tanpa cleanup.
+    // loadReports/loadZones tidak pernah reject; error disimpan di store.
+    // Antrean offline dimuat SETELAH loadReports agar laporan pending tidak tertimpa,
+    // lalu dicoba kirim (flush tidak berbuat apa-apa bila offline).
+    void (async () => {
+      await loadReports();
+      try {
+        await offlineQueue.load();
+        await offlineQueue.flush();
+      } catch (e) {
+        console.warn('[TabLayout] Gagal memuat antrean offline:', e);
+      }
+    })();
+    void loadZones();
+  }, [loadReports, loadZones]);
 
   return (
     <OfflineBanner>

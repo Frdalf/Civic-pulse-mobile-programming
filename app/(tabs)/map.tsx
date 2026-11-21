@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useRef } from 'react';
 import {
   StyleSheet,
   Text,
@@ -13,10 +13,8 @@ import { ReportMarker } from '@/components/map/ReportMarker';
 import { ZoneCircle } from '@/components/map/ZoneCircle';
 import { colors } from '@/constants/colors';
 import { MALANG_CENTER } from '@/constants/config';
-import { MALANG_DISASTER_ZONES } from '@/constants/dummyZones';
 import { useGeofence } from '@/hooks/useGeofence';
 import { useLocationTracking } from '@/hooks/useLocationTracking';
-import { useRealtimeReports } from '@/hooks/useRealtimeReports';
 import { useReportStore, useZoneStore } from '@/store';
 import type { Report } from '@/types';
 
@@ -39,24 +37,14 @@ export default function MapScreen() {
 
   // Precision selectors sesuai konvensi Zustand UDF
   const reports = useReportStore((s) => s.reports);
+  // Zona dimuat dari Supabase oleh layout tab (useZoneStore.loadZones).
   const zones = useZoneStore((s) => s.zones);
-  const setZones = useZoneStore((s) => s.setZones);
-
-  // Inisialisasi zona rawan jika belum tersedia
-  useEffect(() => {
-    if (zones.length === 0) {
-      setZones(MALANG_DISASTER_ZONES);
-    }
-  }, [zones.length, setZones]);
 
   // Hook LBS adaptif (milik Orang 2)
   const { location, error: locationError, permission } = useLocationTracking();
 
   // Hook Geofencing aktif & notifikasi lokal masuk zona (milik Orang 2)
   const { insideZones } = useGeofence(zones, location);
-
-  // Hook Real-time updates Supabase (milik Orang 2)
-  useRealtimeReports();
 
   const handleCalloutPress = useCallback(
     (report: Report) => {
