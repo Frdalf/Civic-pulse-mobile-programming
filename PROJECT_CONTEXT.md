@@ -300,12 +300,12 @@ Mapping snake_case DB ↔ camelCase type dilakukan di `src/services/supabase.ts`
 - [x] Banner "Offline" global dari `useNetworkStore`.
 
 **Orang 2**
-- [ ] Isi `disaster_zones` (min. 5 zona contoh di Malang), load ke `useZoneStore`.
-- [ ] `utils/geofence.ts` (`isInsideZone` berbasis Haversine) + `useGeofence` → notifikasi lokal saat masuk zona (sekali per masuk, bukan berulang).
-- [ ] `components/map/ZoneCircle.tsx` (warna sesuai `riskLevel`).
-- [ ] `useReportFilter`: `Subject<string>` → `debounceTime(300)` → `distinctUntilChanged()` → `switchMap(query Supabase / filter lokal)`; dukung `maxDistanceKm`; `unsubscribe` saat unmount.
-- [ ] `useRealtimeReports`: channel `reports` (INSERT/UPDATE) → `upsertReport`; `removeChannel` saat unmount.
-- [ ] `useNetworkStatus` + `offlineQueue` (simpan antrean di file-system, `flush()` saat online kembali).
+- [x] Isi `disaster_zones` (min. 5 zona contoh di Malang), load ke `useZoneStore`.
+- [x] `utils/geofence.ts` (`isInsideZone` berbasis Haversine) + `useGeofence` → notifikasi lokal saat masuk zona (sekali per masuk, bukan berulang).
+- [x] `components/map/ZoneCircle.tsx` (warna sesuai `riskLevel`).
+- [x] `useReportFilter`: `Subject<string>` → `debounceTime(300)` → `distinctUntilChanged()` → `switchMap(query Supabase / filter lokal)`; dukung `maxDistanceKm`; `unsubscribe` saat unmount.
+- [x] `useRealtimeReports`: channel `reports` (INSERT/UPDATE) → `upsertReport`; `removeChannel` saat unmount.
+- [x] `useNetworkStatus` + `offlineQueue` (simpan antrean di file-system, `flush()` saat online kembali).
 
 ---
 

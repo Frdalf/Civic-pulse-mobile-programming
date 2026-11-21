@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import {
   StyleSheet,
   Text,
@@ -10,10 +10,14 @@ import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ReportMarker } from '@/components/map/ReportMarker';
+import { ZoneCircle } from '@/components/map/ZoneCircle';
 import { colors } from '@/constants/colors';
 import { MALANG_CENTER } from '@/constants/config';
+import { MALANG_DISASTER_ZONES } from '@/constants/dummyZones';
+import { useGeofence } from '@/hooks/useGeofence';
 import { useLocationTracking } from '@/hooks/useLocationTracking';
-import { useReportStore } from '@/store';
+import { useRealtimeReports } from '@/hooks/useRealtimeReports';
+import { useReportStore, useZoneStore } from '@/store';
 import type { Report } from '@/types';
 
 const INITIAL_REGION = {
@@ -24,20 +28,35 @@ const INITIAL_REGION = {
 };
 
 /**
- * Layar Peta Laporan Warga & LBS (Orang 2 — Milestone P9).
- * Menampilkan sebaran laporan warga di Kota Malang, posisi perangkat,
- * serta kalkulasi jarak Haversine ke tiap insiden secara real-time.
+ * Layar Peta Laporan Warga, LBS & Geofencing (Orang 2 — Minggu 1 & 3).
+ * Menampilkan sebaran laporan warga, zona rawan bencana ber-radius,
+ * posisi perangkat, serta kalkulasi jarak dan notifikasi geofence real-time.
  */
 export default function MapScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const mapRef = useRef<MapView | null>(null);
 
-  // Precision selector sesuai konvensi Zustand UDF
+  // Precision selectors sesuai konvensi Zustand UDF
   const reports = useReportStore((s) => s.reports);
+  const zones = useZoneStore((s) => s.zones);
+  const setZones = useZoneStore((s) => s.setZones);
+
+  // Inisialisasi zona rawan jika belum tersedia
+  useEffect(() => {
+    if (zones.length === 0) {
+      setZones(MALANG_DISASTER_ZONES);
+    }
+  }, [zones.length, setZones]);
 
   // Hook LBS adaptif (milik Orang 2)
   const { location, error: locationError, permission } = useLocationTracking();
+
+  // Hook Geofencing aktif & notifikasi lokal masuk zona (milik Orang 2)
+  const { insideZones } = useGeofence(zones, location);
+
+  // Hook Real-time updates Supabase (milik Orang 2)
+  useRealtimeReports();
 
   const handleCalloutPress = useCallback(
     (report: Report) => {
@@ -73,6 +92,12 @@ export default function MapScreen() {
         showsMyLocationButton={false}
         showsCompass={true}
       >
+        {/* Lingkaran Zona Rawan Bencana */}
+        {zones.map((zone) => (
+          <ZoneCircle key={zone.id} zone={zone} />
+        ))}
+
+        {/* Marker Laporan Warga */}
         {reports.map((report) => (
           <ReportMarker
             key={report.id}
@@ -83,14 +108,22 @@ export default function MapScreen() {
         ))}
       </MapView>
 
-      {/* Floating Info Banner & Status Izin */}
+      {/* Floating Info Banner & Status Zona/Izin */}
       <View style={[styles.topOverlay, { top: insets.top + 8 }]}>
         <View style={styles.badgeCard}>
           <Text style={styles.badgeTitle}>Peta Civic Pulse</Text>
           <Text style={styles.badgeSubtitle}>
-            {reports.length} laporan di Malang & sekitarnya
+            {reports.length} laporan · {zones.length} zona rawan bencana
           </Text>
         </View>
+
+        {insideZones.length > 0 && (
+          <View style={styles.dangerBanner}>
+            <Text style={styles.dangerText}>
+              🚨 Anda berada di dalam zona: {insideZones.map((z) => z.name).join(', ')}
+            </Text>
+          </View>
+        )}
 
         {permission === 'denied' && (
           <View style={styles.warningBanner}>
@@ -154,6 +187,19 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: colors.textMuted,
     marginTop: 2,
+  },
+  dangerBanner: {
+    backgroundColor: 'rgba(255, 235, 238, 0.95)',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+    borderLeftWidth: 4,
+    borderLeftColor: colors.danger,
+  },
+  dangerText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: colors.danger,
   },
   warningBanner: {
     backgroundColor: 'rgba(255, 243, 224, 0.95)',

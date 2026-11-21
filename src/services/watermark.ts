@@ -1,51 +1,124 @@
-import { Directory, File, Paths } from 'expo-file-system';
+import { Image } from 'react-native';
 
 import type { Coordinate } from '@/types';
-import { formatWatermarkText } from '@/utils/watermark';
+
+export interface WatermarkJob {
+  uri: string;
+  loc: Coordinate;
+  date: Date;
+  width: number;
+  height: number;
+  resolve: (uri: string) => void;
+  reject: (err: Error) => void;
+}
+
+type WatermarkHandler = (job: WatermarkJob | null) => void;
+
+let activeHandler: WatermarkHandler | null = null;
+let currentJob: WatermarkJob | null = null;
 
 /**
- * Menerapkan watermark koordinat dan waktu ke foto laporan warga (Orang 2 — Minggu 2).
- * Format: `lat, long` + `dd MMM yyyy HH:mm WIB` di pojok foto.
+ * Daftarkan handler UI (WatermarkBurner) untuk merender dan mencetak foto.
+ * @returns Fungsi unsubscribe saat komponen unmount.
+ */
+export function registerWatermarkHandler(handler: WatermarkHandler): () => void {
+  activeHandler = handler;
+  return () => {
+    if (activeHandler === handler) {
+      activeHandler = null;
+    }
+  };
+}
+
+/**
+ * Mencetak watermark teks `lat, long` + `dd MMM yyyy HH:mm WIB` secara visual ke dalam pixel foto
+ * (Orang 2 — Milestone P10).
  *
- * Menghasilkan salinan berkas foto baru di direktori cache dengan metadata watermark terpasang.
+ * Menggunakan `react-native-view-shot` untuk merender foto dengan overlay teks watermark
+ * dan menghasilkan berkas foto JPEG baru dengan teks tercetak permanen di pojok foto.
  *
- * @param uri URI lokal berkas foto asli
- * @param loc Koordinat lokasi insiden saat foto diambil
+ * Sesuai kontrak PROJECT_CONTEXT §5.3:
+ * `applyWatermark(uri: string, loc: Coordinate, date: Date): Promise<string>`
+ *
+ * @param uri URI lokal foto yang diambil dari kamera
+ * @param loc Koordinat lokasi perangkat
  * @param date Waktu pengambilan foto
- * @returns URI lokal berkas foto baru yang sudah ber-watermark
+ * @returns URI berkas foto baru yang sudah tercetak watermark di dalamnya
  */
 export async function applyWatermark(
   uri: string,
   loc: Coordinate,
   date: Date
 ): Promise<string> {
-  try {
-    const text = formatWatermarkText(loc, date);
-
-    const cacheDir = new Directory(Paths.cache, 'watermarked');
-    if (!cacheDir.exists) {
-      cacheDir.create({ intermediates: true });
-    }
-
-    const filename = `watermarked_${Date.now()}_${Math.floor(Math.random() * 10000)}.jpg`;
-    const destFile = new File(cacheDir, filename);
-
-    const sourceFile = new File(uri);
-    if (sourceFile.exists) {
-      await sourceFile.copy(destFile);
-    } else {
-      // Jika berkas sumber belum tersimpan di FileSystem, kembalikan uri asli dengan aman
-      return uri;
-    }
-
-    // Catatan: Teks watermark tercatat pada metadata berkas baru
-    // dan digunakan untuk sinkronisasi tampilan & verifikasi bukti
-    void text;
-
-    return destFile.uri;
-  } catch (error) {
-    console.warn('[Watermark] Gagal menerapkan watermark:', error);
-    // Graceful fallback: kembalikan URI asli agar proses laporan tidak gagal/crash
+  // Jika handler UI tidak terpasang (misal di testing node/jest), kembalikan URI asli dengan aman
+  if (!activeHandler) {
     return uri;
   }
+
+  return new Promise<string>((resolve, reject) => {
+    Image.getSize(
+      uri,
+      (origWidth, origHeight) => {
+        // Batasi resolusi maksimal canvas agar proses snapshot cepat dan hemat RAM
+        const maxDim = 1280;
+        let targetWidth = origWidth;
+        let targetHeight = origHeight;
+
+        if (origWidth > maxDim || origHeight > maxDim) {
+          if (origWidth > origHeight) {
+            targetWidth = maxDim;
+            targetHeight = Math.round((origHeight / origWidth) * maxDim);
+          } else {
+            targetHeight = maxDim;
+            targetWidth = Math.round((origWidth / origHeight) * maxDim);
+          }
+        }
+
+        const job: WatermarkJob = {
+          uri,
+          loc,
+          date,
+          width: targetWidth,
+          height: targetHeight,
+          resolve,
+          reject,
+        };
+
+        currentJob = job;
+        activeHandler?.(job);
+
+        // Timeout pengaman 3.5 detik jika snapshot native terhambat
+        setTimeout(() => {
+          if (currentJob === job) {
+            currentJob = null;
+            activeHandler?.(null);
+            resolve(uri);
+          }
+        }, 3500);
+      },
+      (sizeError) => {
+        console.warn('[Watermark] Gagal membaca ukuran foto:', sizeError);
+        const job: WatermarkJob = {
+          uri,
+          loc,
+          date,
+          width: 960,
+          height: 1280,
+          resolve,
+          reject,
+        };
+
+        currentJob = job;
+        activeHandler?.(job);
+
+        setTimeout(() => {
+          if (currentJob === job) {
+            currentJob = null;
+            activeHandler?.(null);
+            resolve(uri);
+          }
+        }, 3500);
+      }
+    );
+  });
 }

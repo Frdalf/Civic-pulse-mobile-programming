@@ -3,9 +3,10 @@ import { useCallback, useState } from 'react';
 
 import { useLocationTracking } from '@/hooks/useLocationTracking';
 import { capturePhoto } from '@/services/camera';
+import { offlineQueue } from '@/services/offlineQueue';
 import { insertReport, uploadReportPhoto } from '@/services/reports';
 import { applyWatermark } from '@/services/watermark';
-import { useAuthStore, useReportStore } from '@/store';
+import { useAuthStore, useNetworkStore, useReportStore } from '@/store';
 import type { Coordinate, ReportCategory } from '@/types';
 
 const MIN_DESCRIPTION = 10;
@@ -70,6 +71,20 @@ export function useCreateReport(): UseCreateReport {
     setError(null);
     setIsSubmitting(true);
     try {
+      if (!useNetworkStore.getState().isOnline) {
+        await offlineQueue.enqueue({
+          userId: user.id,
+          category,
+          description: description.trim(),
+          location,
+          photoUrl: photoUri,
+        });
+        setCategory(null);
+        setDescription('');
+        setPhotoUri(null);
+        return true;
+      }
+
       const photoUrl = photoUri ? await uploadReportPhoto(photoUri, user.id) : null;
       const report = await insertReport(
         { userId: user.id, category, description: description.trim(), location },
@@ -81,8 +96,22 @@ export function useCreateReport(): UseCreateReport {
       setPhotoUri(null);
       return true;
     } catch (e) {
-      // TODO(Orang 2, Minggu 3): saat offline, simpan ke offlineQueue alih-alih gagal.
-      return fail(toMessage(e, 'Gagal mengirim laporan.'));
+      // Saat gagal karena jaringan atau offline, simpan ke offlineQueue
+      try {
+        await offlineQueue.enqueue({
+          userId: user.id,
+          category,
+          description: description.trim(),
+          location,
+          photoUrl: photoUri,
+        });
+        setCategory(null);
+        setDescription('');
+        setPhotoUri(null);
+        return true;
+      } catch {
+        return fail(toMessage(e, 'Gagal mengirim laporan.'));
+      }
     } finally {
       setIsSubmitting(false);
     }
